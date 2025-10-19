@@ -45,14 +45,13 @@ def proxima_pergunta(etapa):
     }
     return perguntas.get(etapa, "Fim do questionário.")
 
+@app.route("/", methods=["GET"])
+def default_route():
+    return {"status": "OK", "message": "Esta é uma api do app DermaBot, para uso exclusivo do integrador"}, 200
+
 @app.route("/health", methods=["GET"])
 def health_check():
     return {"status": "OK"}, 200
-
-@app.route("/", methods=["GET"])
-def health_check():
-    return {"status": "OK", "message": "Esta é uma api do app DermaBot, para uso exclusivo do integrador"}, 200
-
 
 
 @app.route("/webhook", methods=["POST"])
