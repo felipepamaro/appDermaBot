@@ -49,6 +49,11 @@ def proxima_pergunta(etapa):
 def health_check():
     return {"status": "OK"}, 200
 
+@app.route("/", methods=["GET"])
+def health_check():
+    return {"status": "OK", "message": "Esta é uma api do app DermaBot, para uso exclusivo do integrador"}, 200
+
+
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
