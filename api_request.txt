@@ -1,0 +1,3 @@
+#https://api.telegram.org/bot8126274393:AAH6N0pu8xd5lMFU2De5cPD7nXJQGrPffYk/setWebhook?url=https://unirio-survey.onrender.com/webhook
+https://api.telegram.org/bot8126274393:AAH6N0pu8xd5lMFU2De5cPD7nXJQGrPffYk/setWebhook?url=https://unsurvived-scutate-sienna.ngrok-free.dev/conversa
+https://api.telegram.org/bot8126274393:AAH6N0pu8xd5lMFU2De5cPD7nXJQGrPffYk/setWebhook?url=https://unsurvived-scutate-sienna.ngrok-free.dev/webhook

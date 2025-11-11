@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8">
+  <title>DermaBot (Emulador Webhook)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, Arial;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .envoltorio {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+
+    .chat {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      background: #111827;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .balao {
+      max-width: 85%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+    }
+
+    .bot {
+      background: #1f2937;
+      align-self: flex-start;
+    }
+
+    .usuario {
+      background: #2563eb;
+      align-self: flex-end;
+      color: #fff;
+    }
+
+    .linha {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1220;
+      color: #e2e8f0;
+    }
+
+    button {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #22c55e;
+      border: none;
+      color: #072;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    small {
+      color: #94a3b8
+    }
+  </style>
+</head>
+
+<body>
+  <div class="envoltorio">
+    <h1>DermaBot</h1>
+    <small>Versão de demonstração local no navegador (Emulador Webhook)</small>
+    <div id="caixa_chat" class="chat"></div>
+    <div class="linha">
+      <input id="entrada" type="text" placeholder="Digite aqui... (ex.: 1)">
+      <button id="botao">Enviar</button>
+    </div>
+  </div>
+  <script>
+    const caixa_chat = document.getElementById('caixa_chat');
+    const entrada = document.getElementById('entrada');
+    const botao = document.getElementById('botao');
+
+    // ID de chat fixo para esta sessão de navegador
+    // No seu exemplo, o 'id' em 'from' e 'chat' era o mesmo.
+    const CHAT_ID_LOCAL = 123456789; 
+
+    function desenharBalao(texto, quem) {
+      const div = document.createElement('div');
+      div.className = 'balao ' + (quem === 'usuario' ? 'usuario' : 'bot');
+      div.textContent = texto;
+      caixa_chat.appendChild(div);
+      caixa_chat.scrollTop = caixa_chat.scrollHeight;
+    }
+
+    /**
+     * Esta função foi modificada para enviar o payload completo
+     * para a rota /webhook/telegram
+     */
+    async function enviarMensagem(mensagem) {
+      botao.disabled = true;
+
+      // 1. Construir o payload de webhook do Telegram
+      const payload = {
+        // Usamos timestamp para simular IDs únicos
+        update_id: new Date().getTime(), 
+        message: {
+          message_id: new Date().getTime() + 1, // ID de msg
+          from: {
+            id: CHAT_ID_LOCAL,
+            is_bot: false,
+            first_name: 'Usuário',
+            last_name: 'Local',
+            username: 'web.browser',
+            language_code: 'pt-br'
+          },
+          chat: {
+            id: CHAT_ID_LOCAL,
+            first_name: 'Usuário',
+            last_name: 'Local',
+            username: 'web.browser',
+            type: 'private'
+          },
+          // Timestamp UNIX em segundos
+          date: Math.floor(new Date().getTime() / 1000), 
+          // A mensagem real do input
+          text: mensagem 
+        }
+      };
+
+      try {
+        // 2. Enviar para a rota /webhook/telegram
+        const resposta = await fetch('/webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resposta.ok) {
+          const texto = await resposta.text();
+          console.error('Erro HTTP:', resposta.status, texto);
+          desenharBalao('Erro no servidor (' + resposta.status + '). Veja o console.', 'bot');
+          return;
+        }
+        
+        let dados;
+        try { dados = await resposta.json(); }
+        catch (e) {
+          const t = await resposta.text();
+          console.error('Resposta não-JSON:', t);
+          desenharBalao('Resposta não reconhecida do servidor. Veja o console.', 'bot');
+          return;
+        }
+
+        // 3. Processar a resposta do webhook (que é SÓ "status: ok")
+        if (dados.status === 'ok') {
+          // O backend processou com sucesso.
+          // NENHUMA resposta do bot virá por aqui.
+          console.log('Backend recebeu e processou. Status: OK.');
+          console.log(dados)
+          desenharBalao(dados.msg, 'bot');
+        } else {
+          desenharBalao('O backend respondeu, mas não com "status: ok".', 'bot');
+          console.warn('Resposta inesperada do backend:', dados);
+        }
+
+      } catch (e) {
+        console.error(e);
+        desenharBalao('Falha de rede. O servidor está rodando?', 'bot');
+      } finally {
+        botao.disabled = false;
+        // Re-habilita o botão, mas não desenha resposta do bot.
+      }
+    }
+
+    botao.addEventListener('click', async () => {
+      const msg = entrada.value.trim();
+      if (!msg) return;
+      // Desenha o balão do usuário localmente
+      desenharBalao(msg, 'usuario');
+      entrada.value = '';
+      // Envia a mensagem para o backend
+      await enviarMensagem(msg);
+    });
+
+    entrada.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') botao.click();
+    });
+
+    // Mensagem inicial do bot
+    // Vamos simular que o usuário digitou "Olá" para iniciar
+    // (o __bootstrap__ era da rota /conversa)
+    desenharBalao("Olá", 'usuario');
+    enviarMensagem('Olá'); 
+    
+  </script>
+</body>
+
+</html>
