@@ -130,7 +130,7 @@ def webhook_telegram():
         #result = model.transcribe(Telegram_voicepath(dados_telegram.message.voice.file_id), language="pt")
         #telegram_sender.send_message(chat_id, f" Você respondeu **{result['text']}** por voz")
         #mensagem_recebida = result['text']
-        mensagem_recebida = ''
+        mensagem_recebida = 'Voice'
         telegram_sender.send_message(chat_id, mensagem.voz)
 
     elif not dados_telegram.message or not dados_telegram.message.chat or not dados_telegram.message.text:
