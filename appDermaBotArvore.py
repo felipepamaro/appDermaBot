@@ -125,14 +125,14 @@ def webhook_telegram():
     
     if dados_telegram.message.voice is not None:
 
+           # Transcribe an audio file
         #model = whisper.load_model("base")
-        # Transcribe an audio file
         #result = model.transcribe(Telegram_voicepath(dados_telegram.message.voice.file_id), language="pt")
         #telegram_sender.send_message(chat_id, f" Você respondeu **{result['text']}** por voz")
         #mensagem_recebida = result['text']
-        
+        mensagem_recebida = None
         telegram_sender.send_message(chat_id, mensagem.voz)
-    
+
     elif not dados_telegram.message or not dados_telegram.message.chat or not dados_telegram.message.text:
 
         telegram_sender.send_message(chat_id, mensagem.invalida)
