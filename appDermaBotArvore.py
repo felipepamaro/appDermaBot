@@ -54,7 +54,7 @@ class mensagem:
     1 - Sim
     2 - Sair
     """
-    voz = "Muito em breve você vai poder conversar por voz comigo, mas por enquanto podemos conversar por texto?"
+    voz = "Nesta versão a conversa por voz não está habilitada, por enquanto podemos conversar por texto?"
     invalida = "Desculpe, eu ainda não consigo entender este tipo de mensagem. Você pode falar comigo por texto?" 
     sair = "Obrigado por utilizar o DermaBot! A conversa foi encerrada.\n\nPara recomeçar, envie 'Olá'."
     recomecar = "Gostaria de iniciar o pré-diagnóstico? Por favor, responda:\n1 - Sim\n2 - Sair"
@@ -125,13 +125,14 @@ def webhook_telegram():
     
     if dados_telegram.message.voice is not None:
 
-        model = whisper.load_model("base")
+        #model = whisper.load_model("base")
         # Transcribe an audio file
-        result = model.transcribe(Telegram_voicepath(dados_telegram.message.voice.file_id), language="pt")
-        #telegram_sender.send_message(chat_id, mensagem.voz)
-        telegram_sender.send_message(chat_id, f" Você respondeu **{result['text']}** por voz")
-        mensagem_recebida = result['text']
+        #result = model.transcribe(Telegram_voicepath(dados_telegram.message.voice.file_id), language="pt")
+        #telegram_sender.send_message(chat_id, f" Você respondeu **{result['text']}** por voz")
+        #mensagem_recebida = result['text']
         
+        telegram_sender.send_message(chat_id, mensagem.voz)
+    
     elif not dados_telegram.message or not dados_telegram.message.chat or not dados_telegram.message.text:
 
         telegram_sender.send_message(chat_id, mensagem.invalida)
