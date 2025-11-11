@@ -1,0 +1,1 @@
+web: gunicorn appDermaBotArvore:aplicativo --workers=3 --threads=4 --timeout=120
